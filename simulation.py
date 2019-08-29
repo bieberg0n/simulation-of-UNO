@@ -8,65 +8,65 @@ import random
 from time import sleep
 
 
-def generate_cards():
-	Colors = ['红', '黄', '绿', '蓝']
-	Symbols = ['1', '2', '3', '跳过', '4', '5', '6', '反转', '7', '8', '9', '10', '+2']
-	SuperCards = ['转色', '+4']
-	# generate a complete cards
-	Cards = [n + m for n in Colors for m in Symbols]
-	media = [n + m for n in Colors for m in Symbols]
-	for e in media:
-		Cards.append(e)
-	for n in range(0, 4):
-		for e in SuperCards:
-			Cards.append(e)
-	return Cards
+def log(*args):
+	print(*args)
 
-def generate_user():
-	User_A = []
-	User_B = []
-	User_C = []
-	User_D = []
-	return User_A, User_B, User_C, User_D
-
-def deliver_cards():
-	global Cards
-	if len(Cards) == 0:
-		Cards = generate_cards()
-	else:
-		pass
-	num_1 = random.randint(1, len(Cards)) - 1
-	card_selected = Cards.pop((num_1)) 
-	return card_selected
-
-def start():
-	num_2 = random.randint(1, 7) - 1 
-	while True:
-		if User_A[num_2][-2:] == '转色':
-			num_2 = random.randint(1, 7) - 1
-		elif User_A[num_2][-2:] == '+4':
-			num_2 = random.randint(1, 7) - 1
-		elif User_A[num_2][-2:] == '跳过':
-			num_2 = random.randint(1, 7) - 1
-		elif User_A[num_2][-2:] == '反转':
-			num_2 = random.randint(1, 7) - 1
-		elif User_A[num_2][-2:] == '+2':
-			num_2 = random.randint(1, 7) - 1
-		else:
-			break
-	card_selected_1 = User_A[num_2]
-	print('玩家 A 打出了手中的 ' + card_selected_1 + ' , TA 手中还剩下 ' + str(len(User_A) -1 ) + ' 张牌。\n')
-	state = []
-	state.append(User_A[num_2][0])
-	state.append(User_A[num_2][1:])
-	state.append(0)
-	User_A.pop(num_2)
-	return state
 
 def color_update():
-	Colors = ['红', '黄', '绿', '蓝']
-	new_color = Colors[random.randint(1, 4) - 1]
-	return new_color
+	colors = ['红', '黄', '绿', '蓝']
+	return colors[random.randint(0, 3)]
+
+
+class Uno:
+	def __init__(self):
+		self.cards = []
+		self.generate_cards()
+		self.user_a, self.user_b, self.user_c, self.user_d = [], [], [], []
+
+	# 生成完整牌组
+	def generate_cards(self):
+		colors = ['红', '黄', '绿', '蓝']
+		symbols = ['1', '2', '3', '跳过', '4', '5', '6', '反转', '7', '8', '9', '10', '+2']
+		super_cards = ['转色', '+4']
+
+		# generate a complete cards
+		self.cards = [n + m for n in colors for m in symbols] * 2
+		self.cards.extend(super_cards * 4)
+
+	# 发牌
+	def deliver_cards(self):
+		if len(self.cards) == 0:
+			self.generate_cards()
+		num = random.randint(0, len(self.cards) - 1)
+		card_selected = self.cards.pop(num)
+		return card_selected
+
+	def start(self):
+		while True:
+			num = random.randint(0, 6)
+			card = self.user_a[num][-2:]
+			if card not in ('转色', '+4', '跳过', '反转', '+2'):
+				# 	num = random.randint(1, 7) - 1
+				# elif User_A[num][-2:] == '+4':
+				# 	num = random.randint(1, 7) - 1
+				# elif User_A[num][-2:] == '跳过':
+				# 	num = random.randint(1, 7) - 1
+				# elif User_A[num][-2:] == '反转':
+				# 	num = random.randint(1, 7) - 1
+				# elif User_A[num][-2:] == '+2':
+				# 	num = random.randint(1, 7) - 1
+				# else:
+				break
+
+		# card_selected = self.user_a[num]
+		# state = []
+		state = [self.user_a[num][0], self.user_a[num][1:], 0]
+		# state.append(0)
+		self.user_a.pop(num)
+		log('玩家 A 打出了手中的 {} , TA 手中还剩下 {} 张牌。'.format(card, len(self.user_a)))
+		log()
+		return state
+
 
 def decision_making(current_user):
 	card_selected_2 = []
@@ -148,16 +148,15 @@ def decision_making(current_user):
 	end_condition = len(current_user)
 	return end_condition
 
-			
 
-if __name__ == '__main__':
+def main():
 	Cards = generate_cards()
 	# 先生成出一副牌
 	print('正在载入。' + '\n')
 	print('牌组已经生成。' + '\n')
 	sleep(1)
 	# 然后要生成出 4 位用户
-	User_A, User_B, User_C, User_D = generate_user()
+
 	print('已经生成 4 位玩家。' + '\n')
 	sleep(1)
 	# 然后是开局发牌
@@ -208,6 +207,7 @@ if __name__ == '__main__':
 			print('现在轮到 B 出牌。\n')
 			sleep(1)
 
-	
 
-
+if __name__ == '__main__':
+	log(generate_cards())
+	# main()
