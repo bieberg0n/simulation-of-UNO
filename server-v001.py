@@ -12,7 +12,7 @@ import queue
 
 def become_server():
 	s_connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s_connect.bind(('127.0.0.1', 7800))
+	s_connect.bind(('127.0.0.1', 9321))
 	s_connect.listen(8)
 	print('Waiting for connection...')
 	while True:
