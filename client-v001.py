@@ -44,8 +44,8 @@ def become_client():
 		n = input('')
 		if n == 'p':
 			c.sendall('摸牌'.encode())
-			card = msg_q.get()
-			cards.append(card)
+			# card = msg_q.get()
+			# cards.append(card)
 
 		else:
 			card = cards[int(n)]
