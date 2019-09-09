@@ -91,7 +91,7 @@ def tcplink(sock, addr, cards, q, broadcaster):
 			elif data[:2] == '摸牌':
 				card = deliver_cards(cards)
 				hand_cards.append(card)
-				sock.sendall(card.encode())
+				# sock.sendall(card.encode())
 				# card_in_hand.append(deliver_cards(card_set))
 				broadcaster.put({
 					'cmd': 'broadcast',
@@ -117,8 +117,9 @@ def send_card_in_hand(conn, cards):
 
 def become_server(cards):
 	s_connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s_connect.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	port = 9321
-	s_connect.bind(('127.0.0.1', port))
+	s_connect.bind(('0.0.0.0', port))
 	s_connect.listen(8)
 	log('Listen to 127.0.0.1:{}. Waiting for connection...'.format(port))
 
