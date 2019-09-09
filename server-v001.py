@@ -12,7 +12,7 @@ import queue
 
 def become_server():
 	s_connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s_connect.bind(('127.0.0.1', 9321))
+	s_connect.bind(('127.0.0.1', 9876))
 	s_connect.listen(8)
 	print('Waiting for connection...')
 	while True:
@@ -28,30 +28,32 @@ def tcplink(sock, addr):
 	sock.send('请输入你的玩家昵称：'.encode('utf-8'))
 	while True:
 		data = sock.recv(1024).decode('utf-8')
-		news = q.get()
-		if news:
-			sock.send(news.encode('utf-8'))
 		if data[0:2] == '名字':
 			name = data[2:]
 			q.put(data[2:] + '加入了游戏！')
 			card_in_hand = []
 			for n in range(0, 7):
 				card_in_hand.append(deliver_cards(card_set))
-			send_card_in_hand(card_in_hand)
+			card_mess = mess_card_in_hand(card_in_hand)
+			sock.send(card_mess.encode('utf-8'))
 		elif data[0:2] == '出牌':
 			if type(int(data[2:])) == int:
 				pass
 			else:
 				data[2:] = 100
 			if int(data[2:]) < len(card_in_hand):
-				card_pop = card_in_hand.pop(int(data[2:]))
-				q.put(name + '打出了一张' + card_pop + ' 。 TA 手上还剩下 ' + str(len(card_in_hand)) + ' 张牌。')
-				send_card_in_hand(card_in_hand)
+				card_pop = card_in_hand.pop(int(data[2:])-1)
+				q.put(name + '打出了一张' + card_pop + ' 。 TA 手上还剩下 ' + str(len(card_in_hand)) + ' 张牌。\n')
+				card_mess = mess_card_in_hand(card_in_hand)
+				sock.send(card_mess.encode('utf-8'))
 			else:
 				card_in_hand.append(deliver_cards(card_set))
-				q.put(name + '抽了一张牌。 TA 手上还剩下 ' + str(len(card_in_hand)) + ' 张牌。')
-				send_card_in_hand(card_in_hand)
-
+				q.put(name + '抽了一张牌。 TA 手上还剩下 ' + str(len(card_in_hand)) + ' 张牌。\n')
+				card_mess = mess_card_in_hand(card_in_hand)
+				sock.send(card_mess.encode('utf-8'))
+		news = q.get()
+		sock.send(news.encode('utf-8'))
+		
 
 def generate_cards():
 	colors = ['红', '黄', '绿', '蓝']
@@ -73,12 +75,13 @@ def deliver_cards(cards):
 	card_selected = cards.pop(num_1) 
 	return card_selected
 
-def send_card_in_hand(cards):
-	xuhao = []
+def mess_card_in_hand(cards):
+	mess = '你手上的牌有：'
 	for n in range(0, len(cards)):
-		xuhao.append(str(n+1) + '. ' + cards[n])
-	mess = '你手上的牌有：' + xuhao
-	sock.send(mess.encode('utf-8'))
+		mess += str(n+1) + '. ' + cards[n] + ', '
+	mess += '\n'
+	return mess
+
 
 if __name__ == '__main__':
 	card_set = generate_cards()
