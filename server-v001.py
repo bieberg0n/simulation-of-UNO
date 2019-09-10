@@ -5,7 +5,7 @@
 import socket
 import threading
 import random
-from time import sleep
+# from time import sleep
 import queue
 from utils import log
 
