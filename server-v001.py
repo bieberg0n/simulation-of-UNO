@@ -42,11 +42,11 @@ def broadcast(self):
             log('broadcast receive err cmd')
 
 
-def qget(q):
-    try:
-        return q.get_nowait()
-    except queue.Empty:
-        return None
+# def qget(q):
+#     try:
+#         return q.get_nowait()
+#     except queue.Empty:
+#         return None
 
 
 def tcplink(sock, addr, cards, broadcaster):
@@ -56,8 +56,8 @@ def tcplink(sock, addr, cards, broadcaster):
     hand_cards = [deliver_cards(cards) for _ in range(7)]
 
     data = sock.recv(1024).decode('utf-8')
-    q = queue.Queue()
     if data == 'receive':
+        q = queue.Queue()
         broadcaster.put({
             'cmd': 'add',
             'q': q,
@@ -75,7 +75,6 @@ def tcplink(sock, addr, cards, broadcaster):
                     'cmd': 'broadcast',
                     'msg': data[2:] + '加入了游戏！',
                 })
-                sleep(0.5)
                 send_card_in_hand(sock, hand_cards)
 
             elif data[:2] == '出牌':
@@ -122,7 +121,6 @@ def become_server(cards):
 
     while True:
         sock, addr = s_connect.accept()
-        # q = queue.Queue()
         threading.Thread(target=tcplink, args=(sock, addr, cards, broadcaster)).start()
 
 
