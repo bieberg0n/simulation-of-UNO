@@ -60,7 +60,7 @@ const showMsg = function (name, opName, card='') {
 
 class Client {
     constructor () {
-        this.socket = io.connect()
+        this.socket = io.connect({transports: ['websocket']})
         this.name = ''
 
         this.socket.on('broadcast', function (msg) {

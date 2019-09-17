@@ -9,10 +9,14 @@ app.config['SECRET_KEY'] = 'secret!'
 
 socketio = SocketIO(app)
 
+cards = generate_cards()
+players = {}
+
 
 @app.route('/')
 def index():
     return send_file('index.html')
+    # return send_file('exam.html')
 
 
 @socketio.on('lead')
@@ -56,6 +60,4 @@ def connect(msg):
 
 if __name__ == '__main__':
     log('listen on 0.0.0.0:5000...')
-    cards = generate_cards()
-    players = {}
-    socketio.run(app, host='0.0.0.0')
+    socketio.run(app, host='0.0.0.0', port=8092, debug=True)
