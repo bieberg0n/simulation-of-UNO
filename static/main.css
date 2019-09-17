@@ -1,3 +1,7 @@
+.hide {
+    display: none;
+}
+
 .players {
     display: flex;
 }
@@ -28,6 +32,10 @@
     justify-content: center;
     align-items: center;
     margin-top: 30px;
+}
+
+.black {
+    background-color: #222222;
 }
 
 .yellow {

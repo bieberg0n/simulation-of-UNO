@@ -20,7 +20,11 @@ def client_msg(msg):
     name = msg['name']
     card = msg['card']
     log(name, 'lead', card)
-    emit('broadcast', {'data': name + ' lead ' + card})
+    emit('broadcast', {
+        'type': 'lead',
+        'name': name,
+        'card': card,
+    }, broadcast=True)
     players[name].remove(card)
     emit('push_cards', {'data': players[name]})
 
@@ -29,7 +33,10 @@ def client_msg(msg):
 def client_msg(msg):
     name = msg['name']
     log(name, 'draw')
-    emit('broadcast', {'data': name + ' draw a card'})
+    emit('broadcast', {
+        'type': 'draw',
+        'name': name,
+    }, broadcast=True)
     players[name].append(deliver_cards(cards))
     emit('push_cards', {'data': players[name]})
 
@@ -38,7 +45,10 @@ def client_msg(msg):
 def connect(msg):
     name = msg['name']
     log(name, 'join in')
-    emit('broadcast', {'data': msg['name'] + ' join in'}, broadcast=True)
+    emit('broadcast', {
+        'type': 'join',
+        'name': name,
+    }, broadcast=True)
 
     players[name] = [deliver_cards(cards) for _ in range(5)]
     emit('push_cards', {'data': players[name]})

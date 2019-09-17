@@ -13,7 +13,7 @@ from utils import log
 def generate_cards():
     colors = ['红', '黄', '绿', '蓝']
     symbols = ['1', '2', '3', '跳过', '4', '5', '6', '反转', '7', '8', '9', '10', '+2']
-    super_cards = ['转色', '+4']
+    super_cards = ['黑转色', '黑+4']
     # generate a complete cards
     cards = [n + m for n in colors for m in symbols] * 2 + super_cards * 4
     return cards
