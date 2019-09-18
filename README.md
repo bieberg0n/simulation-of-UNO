@@ -7,3 +7,18 @@ The client.py and server.py show how I try to make a usable uno game. It is just
 (2019/09/09) This time I add so much code into the servier.py adn client.py. I believe that my logic is complete but my programming skill is really bad. The biggest bug is that client will produce content unstoppable, but will not print anything.
 
 (2019/09/10) After stupid test I decided to get pull request from my friend, which splits the message-showing feature and game-playing feature.
+
+## Run
+1.
+```
+sudo pip3 install -r requirement.txt
+cp config_example.py config.py
+```
+
+
+2. edit config.py
+
+3.
+```
+python3 app.py
+```

@@ -2,9 +2,10 @@
 from flask import Flask, send_file
 from flask_socketio import SocketIO, emit
 from uno import generate_cards, deliver_cards
+from config import port
 from utils import log
 
-app = Flask(__name__, template_folder='./')
+app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 
 socketio = SocketIO(app)
@@ -16,7 +17,6 @@ players = {}
 @app.route('/')
 def index():
     return send_file('index.html')
-    # return send_file('exam.html')
 
 
 @socketio.on('lead')
@@ -59,5 +59,5 @@ def connect(msg):
 
 
 if __name__ == '__main__':
-    log('listen on 0.0.0.0:5000...')
-    socketio.run(app, host='0.0.0.0', port=8092, debug=True)
+    # log('listen on 0.0.0.0:', port, '...')
+    socketio.run(app, host='0.0.0.0', port=port, debug=True)
