@@ -37,6 +37,7 @@ const colorMap = function (colorName) {
 
 const showCard = function (name, card) {
     let html = `<div class="card ${colorMap(card[0])}">${card.slice(1)}</div>`
+
     const divs = Array.from(qs('.player')).filter(p => p.dataset['name'] === name)
     if (divs.length === 0) {
         q('.players').insertAdjacentHTML('beforeEnd', `<div class="player" data-name="${name}">
@@ -54,37 +55,22 @@ const showCard = function (name, card) {
     }
 }
 
-const showMsg = function (name, opName, card='') {
-    q('.message').insertAdjacentHTML('afterBegin', `<p>${name}${opName}${card}</p>`)
+const showMsg = function (name, opName, card = '', other = '') {
+    if (other !== '') {
+        other = ' | ' + other
+    }
+    q('.message').insertAdjacentHTML('afterBegin', `<p>${name}${opName}${card}${other}</p>`)
 }
 
 class Client {
-    constructor () {
+    constructor() {
         this.socket = io.connect({transports: ['websocket']})
         this.name = ''
+        this.currentLeadPlayer = ''
+        this.currentCard = ''
+        this.players = []
 
-        this.socket.on('broadcast', function (msg) {
-            log(msg)
-            let name = msg['name']
-            let type = msg['type']
-
-            if (type === 'lead') {
-                let card = msg['card']
-                showCard(name, card)
-                showMsg(name, '打出了', card)
-
-            } else if (type === 'join') {
-                let name = msg['name']
-                q('.players').insertAdjacentHTML('beforeEnd', `<div class="player" data-name="${name}"><div class="name">${name}</div></div>`)
-                showMsg(name, '加入了')
-
-            } else if (type === 'draw') {
-                showMsg(name, '摸了一张牌')
-
-            } else {
-                showMsg(name, msg['type'])
-            }
-        })
+        this.socket.on('broadcast', (msg) => this.broadcastCallback(msg))
 
         this.socket.on('push_cards', (msg) => {
             log(msg.data)
@@ -102,7 +88,33 @@ class Client {
         bindClick('#id-button-draw', () => this.socket.emit('draw', {'name': this.name}))
     }
 
-    showCards (cards) {
+    showPlayers () {
+        let playersDiv = q('.players')
+        playersDiv.innerHTML = ''
+
+        let playersHtml = this.players.map(p => {
+            let cardHtml = ''
+            if (this.currentCard) {
+                let card = this.currentCard
+                cardHtml = `<div class="card ${colorMap(card[0])}">${card.slice(1)}</div>`
+            }
+
+            if (this.currentLeadPlayer === p) {
+                return `
+                    <div class="player" data-name="${p}">
+                      <div class="name">${p}</div>
+                      ${cardHtml}
+                    </div>
+                `
+
+            } else {
+                return `<div class="player" data-name="${p}"><div class="name">${p}</div></div>`
+            }
+        }).join('')
+        playersDiv.insertAdjacentHTML('afterBegin', playersHtml)
+    }
+
+    showCards(cards) {
         let html = cards.map(card => `<div class="clickable card ${colorMap(card[0])}" data-card="${card}">${card.slice(1)}</div>`).join('')
 
         let div = q('.cards')
@@ -113,6 +125,43 @@ class Client {
             let card = event.target.dataset.card
             this.socket.emit('lead', {name: this.name, card: card})
         })
+    }
+
+    broadcastCallback (msg) {
+        log(msg)
+        let name = msg['name']
+        let type = msg['type']
+
+        if (type === 'lead') {
+            let card = msg['card']
+            this.currentLeadPlayer = name
+            this.currentCard = card
+            let num = msg['remainCardsNum']
+            let other = ''
+            if (num === 1) {
+                other = `${name} UNO!`
+            } else if (num === 0) {
+                other = `${name} 取得了胜利！`
+            } else {
+                other = `手上还有 ${num} 张牌`
+            }
+            // showCard(name, card)
+            this.showPlayers()
+            showMsg(name, '打出了', card, other)
+
+        } else if (type === 'join') {
+            let name = msg['name']
+            // q('.players').insertAdjacentHTML('beforeEnd', `<div class="player" data-name="${name}"><div class="name">${name}</div></div>`)
+            this.players = msg['players']
+            this.showPlayers()
+            showMsg(name, '加入了')
+
+        } else if (type === 'draw') {
+            showMsg(name, '摸了一张牌')
+
+        } else {
+            showMsg(name, msg['type'])
+        }
     }
 }
 

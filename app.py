@@ -24,12 +24,13 @@ def client_msg(msg):
     name = msg['name']
     card = msg['card']
     log(name, 'lead', card)
+    players[name].remove(card)
     emit('broadcast', {
         'type': 'lead',
         'name': name,
         'card': card,
+        'remainCardsNum': len(players[name])
     }, broadcast=True)
-    players[name].remove(card)
     emit('push_cards', {'data': players[name]})
 
 
@@ -48,13 +49,15 @@ def client_msg(msg):
 @socketio.on('connect_event')
 def connect(msg):
     name = msg['name']
+    players[name] = [deliver_cards(cards) for _ in range(5)]
     log(name, 'join in')
+
     emit('broadcast', {
         'type': 'join',
         'name': name,
+        'players': list(players.keys())
     }, broadcast=True)
 
-    players[name] = [deliver_cards(cards) for _ in range(5)]
     emit('push_cards', {'data': players[name]})
 
 
