@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 from flask import Flask, send_file
 from flask_socketio import SocketIO, emit
-from uno import generate_cards, deliver_cards
+from uno import Table
 from config import port
 from utils import log
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
-
 socketio = SocketIO(app)
-
-cards = generate_cards()
-players = {}
+table = Table()
 
 
 @app.route('/')
@@ -24,41 +21,52 @@ def client_msg(msg):
     name = msg['name']
     card = msg['card']
     log(name, 'lead', card)
-    players[name].remove(card)
+
+    p = table.players[name]
+    if not p.lead(card):
+        return
+
     emit('broadcast', {
         'type': 'lead',
         'name': name,
         'card': card,
-        'remainCardsNum': len(players[name])
+        'remainCardsNum': len(p.cards)
     }, broadcast=True)
-    emit('push_cards', {'data': players[name]})
+    emit('push_cards', {'data': p.cards})
+    emit('broadcast', {'name': '轮到 {} 出牌'.format(table.can_do_player_name()), 'type': ''})
 
 
 @socketio.on('draw')
 def client_msg(msg):
     name = msg['name']
     log(name, 'draw')
+
+    p = table.players[name]
+    if not p.draw():
+        return
+
     emit('broadcast', {
         'type': 'draw',
         'name': name,
+        'remainCardsNum': len(p.cards)
     }, broadcast=True)
-    players[name].append(deliver_cards(cards))
-    emit('push_cards', {'data': players[name]})
+    emit('push_cards', {'data': p.cards})
+    emit('broadcast', {'name': '轮到 {} 出牌'.format(table.can_do_player_name()), 'type': ''})
 
 
 @socketio.on('connect_event')
 def connect(msg):
     name = msg['name']
-    players[name] = [deliver_cards(cards) for _ in range(5)]
+    table.add_player(name)
     log(name, 'join in')
 
     emit('broadcast', {
         'type': 'join',
         'name': name,
-        'players': list(players.keys())
+        'players': list(table.players.keys())
     }, broadcast=True)
 
-    emit('push_cards', {'data': players[name]})
+    emit('push_cards', {'data': table.players[name].cards})
 
 
 if __name__ == '__main__':

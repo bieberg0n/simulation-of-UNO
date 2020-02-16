@@ -62,3 +62,9 @@
 .card + .card {
     margin-left: 20px;
 }
+
+.message {
+    display: block;
+    width: 575px;
+    height: 150px;
+}

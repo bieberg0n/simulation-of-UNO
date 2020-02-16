@@ -59,7 +59,10 @@ const showMsg = function (name, opName, card = '', other = '') {
     if (other !== '') {
         other = ' | ' + other
     }
-    q('.message').insertAdjacentHTML('afterBegin', `<p>${name}${opName}${card}${other}</p>`)
+    // q('.message').insertAdjacentHTML('afterBegin', `<p>${name}${opName}${card}${other}</p>`)
+    let textarea = q('.message')
+    textarea.value += `${new Date().toLocaleTimeString()}：${name}${opName}${card}${other}\n`
+    textarea.scrollTop = textarea.scrollHeight
 }
 
 class Client {
@@ -147,17 +150,17 @@ class Client {
             }
             // showCard(name, card)
             this.showPlayers()
-            showMsg(name, '打出了', card, other)
+            showMsg(name, ' 打出了', card, other)
 
         } else if (type === 'join') {
             let name = msg['name']
-            // q('.players').insertAdjacentHTML('beforeEnd', `<div class="player" data-name="${name}"><div class="name">${name}</div></div>`)
             this.players = msg['players']
             this.showPlayers()
-            showMsg(name, '加入了')
+            showMsg(name, ' 加入了')
 
         } else if (type === 'draw') {
-            showMsg(name, '摸了一张牌')
+            let num = msg['remainCardsNum']
+            showMsg(name, ` 摸牌，手上有 ${num} 张牌`)
 
         } else {
             showMsg(name, msg['type'])
