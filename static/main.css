@@ -23,7 +23,8 @@
 }
 
 .next {
-    background-color: #fffaa0;
+    /*background-color: #fffaa0;*/
+    background-color: yellow;
 }
 
 .card {

@@ -100,7 +100,7 @@ class Player:
             return False
 
         # 最后一张不能是功能牌
-        elif len(self.cards) == 1 and card[1] not in (i for i in range(10)):
+        elif len(self.cards) == 1 and card[1] not in (str(i) for i in range(10)):
             return False
 
         else:
