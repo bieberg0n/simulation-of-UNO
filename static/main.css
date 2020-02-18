@@ -22,6 +22,10 @@
     margin-left: 20px;
 }
 
+.next {
+    background-color: #fffaa0;
+}
+
 .card {
     width: 100px;
     height: 150px;

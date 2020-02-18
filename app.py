@@ -33,7 +33,11 @@ def client_msg(msg):
         'remainCardsNum': len(p.cards)
     }, broadcast=True)
     emit('push_cards', {'data': p.cards})
-    emit('broadcast', {'name': '轮到 {} 出牌'.format(table.can_do_player_name()), 'type': ''})
+    emit('broadcast', {
+        # 'name': '轮到 {} 出牌'.format(table.can_do_player_name()),
+        'name': table.can_do_player_name(),
+        'type': 'next'
+    }, broadcast=True)
 
 
 @socketio.on('draw')
@@ -51,7 +55,11 @@ def client_msg(msg):
         'remainCardsNum': len(p.cards)
     }, broadcast=True)
     emit('push_cards', {'data': p.cards})
-    emit('broadcast', {'name': '轮到 {} 出牌'.format(table.can_do_player_name()), 'type': ''})
+    emit('broadcast', {
+        # 'name': '轮到 {} 出牌'.format(table.can_do_player_name()),
+        'name': table.can_do_player_name(),
+        'type': 'next'
+    }, broadcast=True)
 
 
 @socketio.on('connect_event')
